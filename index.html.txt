@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Be My Valentine? 💘</title>
+  <style>
+    :root{
+      --bg1:#ffdee9;
+      --bg2:#b5fffc;
+      --card:#ffffffcc;
+      --pink:#ff3b7a;
+      --pink2:#ff7aa8;
+      --text:#2b2b2b;
+      --shadow: 0 20px 60px rgba(0,0,0,.15);
+    }
+
+    *{ box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      overflow:hidden;
+      background: radial-gradient(circle at 20% 10%, var(--bg1), transparent 55%),
+                  radial-gradient(circle at 80% 30%, var(--bg2), transparent 60%),
+                  linear-gradient(135deg, #fff0f6, #f0ffff);
+    }
+
+    /* Floating tiny hearts background */
+    .bg-hearts{
+      position:fixed; inset:0;
+      pointer-events:none;
+      overflow:hidden;
+      filter: drop-shadow(0 8px 12px rgba(255,59,122,.18));
+    }
+    .bg-heart{
+      position:absolute;
+      width: 14px; height:14px;
+      transform: rotate(45deg);
+      opacity:.55;
+      animation: floatUp linear infinite;
+    }
+    .bg-heart::before, .bg-heart::after{
+      content:"";
+      position:absolute;
+      width: 14px; height:14px;
+      border-radius:50%;
+      background: var(--pink2);
+    }
+    .bg-heart{ background: var(--pink2); }
+    .bg-heart::before{ left:-7px; top:0; }
+    .bg-heart::after{ left:0; top:-7px; }
+
+    @keyframes floatUp{
+      0%   { transform: translateY(120vh) rotate(45deg) scale(.8); opacity: 0; }
+      10%  { opacity: .6; }
+      100% { transform: translateY(-20vh) rotate(45deg) scale(1.35); opacity: 0; }
+    }
+
+    /* Main card */
+    .wrap{
+      height:100%;
+      display:grid;
+      place-items:center;
+      padding: 20px;
+    }
+    .card{
+      width:min(680px, 92vw);
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,.6);
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+      padding: 26px 22px 24px;
+      position:relative;
+      backdrop-filter: blur(10px);
+    }
+    .badge{
+      display:inline-flex;
+      gap:10px;
+      align-items:center;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,59,122,.12);
+      border: 1px solid rgba(255,59,122,.25);
+      font-weight: 700;
+      color: #b1003b;
+    }
+    h1{
+      margin: 16px 0 6px;
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+    }
+    p{
+      margin: 10px 0 18px;
+      font-size: 16px;
+      line-height: 1.55;
+      opacity:.95;
+    }
+
+    .buttons{
+      display:flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+      position: relative;
+      min-height: 64px;
+    }
+
+    button{
+      border:0;
+      padding: 14px 18px;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor:pointer;
+      transition: transform .12s ease, filter .12s ease;
+      user-select:none;
+    }
+    button:active{ transform: scale(.98); }
+    .yes{
+      background: linear-gradient(135deg, var(--pink), #ff5aa3);
+      color: white;
+      box-shadow: 0 14px 34px rgba(255,59,122,.35);
+    }
+    .yes:hover{ filter: brightness(1.05); }
+
+    /* The "No" button will be positioned absolutely and will dodge clicks */
+    .no{
+      background: rgba(0,0,0,.06);
+      color: rgba(0,0,0,.55);
+      border: 1px solid rgba(0,0,0,.08);
+      position: absolute;
+      left: 160px;
+      top: 0px;
+      pointer-events: none; /* makes it truly unclickable */
+    }
+
+    /* Hint text */
+    .hint{
+      margin-top: 12px;
+      font-size: 13px;
+      opacity:.75;
+    }
+
+    /* Overlay / modal when YES is clicked */
+    .overlay{
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.35);
+      display:none;
+      place-items:center;
+      padding: 18px;
+      z-index: 50;
+      backdrop-filter: blur(8px);
+    }
+    .overlay.show{ display:grid; }
+
+    .modal{
+      width:min(760px, 94vw);
+      background: rgba(255,255,255,.92);
+      border-radius: 28px;
+      box-shadow: 0 30px 90px rgba(0,0,0,.25);
+      overflow:hidden;
+      border: 1px solid rgba(255,59,122,.18);
+      position: relative;
+    }
+    .modalTop{
+      padding: 20px 22px;
+      background: linear-gradient(135deg, rgba(255,59,122,.18), rgba(255,222,233,.35));
+      border-bottom: 1px solid rgba(255,59,122,.12);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+    }
+    .modalTop strong{ font-size: 16px; }
+    .close{
+      background: rgba(0,0,0,.08);
+      color: rgba(0,0,0,.7);
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-weight: 800;
+      cursor:pointer;
+    }
+    .modalBody{
+      padding: 20px 22px 22px;
+      position: relative;
+    }
+    .msg{
+      font-size: clamp(16px, 2.2vw, 20px);
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    /* Big heart opening animation */
+    .bigHeart{
+      position:absolute;
+      right: 18px;
+      top: 12px;
+      width: 90px; height: 90px;
+      transform: rotate(45deg) scale(0);
+      opacity: 0;
+    }
+    .bigHeart::before, .bigHeart::after{
+      content:"";
+      position:absolute;
+      width: 90px; height: 90px;
+      background: linear-gradient(135deg, var(--pink), #ff88b9);
+      border-radius: 50%;
+    }
+    .bigHeart{ background: linear-gradient(135deg, var(--pink), #ff88b9); }
+    .bigHeart::before{ left:-45px; top:0; }
+    .bigHeart::after{ left:0; top:-45px; }
+
+    .overlay.show .bigHeart{
+      animation: popHeart .65s cubic-bezier(.2,1.2,.25,1) forwards;
+    }
+    @keyframes popHeart{
+      0% { transform: rotate(45deg) scale(.0); opacity: 0; }
+      60%{ transform: rotate(45deg) scale(1.1); opacity: 1; }
+      100%{ transform: rotate(45deg) scale(1.0); opacity: 1; }
+    }
+
+    /* Confetti hearts burst */
+    .burst{
+      position:absolute;
+      inset: 0;
+      pointer-events:none;
+      overflow:hidden;
+    }
+    .burstHeart{
+      position:absolute;
+      width: 16px; height:16px;
+      transform: rotate(45deg);
+      opacity: 0;
+      animation: burst 900ms ease-out forwards;
+    }
+    .burstHeart::before, .burstHeart::after{
+      content:"";
+      position:absolute;
+      width: 16px; height:16px;
+      border-radius:50%;
+      background: var(--pink);
+    }
+    .burstHeart{ background: var(--pink); }
+    .burstHeart::before{ left:-8px; top:0; }
+    .burstHeart::after{ left:0; top:-8px; }
+
+    @keyframes burst{
+      0%   { transform: translate(var(--sx), var(--sy)) rotate(45deg) scale(.6); opacity: 0; }
+      10%  { opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) rotate(45deg) scale(1.2); opacity: 0; }
+    }
+
+    /* Small footer */
+    .footer{
+      margin-top: 14px;
+      font-size: 12px;
+      opacity: .65;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .pill{
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,59,122,.10);
+      border: 1px solid rgba(255,59,122,.15);
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-hearts" id="bgHearts"></div>
+
+  <div class="wrap">
+    <div class="card" id="card">
+      <div class="badge">💘 Valentine Mode <span style="opacity:.7;">•</span> Little Hearts Edition</div>
+      <h1>Will you be my Valentine? 🥺❤️</h1>
+      <p>
+        I have a tiny question… and a BIG heart.  
+        Choose wisely 😌
+      </p>
+
+      <div class="buttons" id="buttons">
+        <button class="yes" id="yesBtn">Yes ✅</button>
+        <button class="no" id="noBtn" aria-disabled="true">No 🙅‍♂️</button>
+      </div>
+
+      <div class="hint">Tip: Try clicking “No” 😈 (good luck)</div>
+
+      <div class="footer">
+        <span class="pill">✨ Cute hearts</span>
+        <span class="pill">🎵 Sweet song on “Yes”</span>
+        <span class="pill">🏃‍♂️ “No” runs away</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="modal">
+      <div class="modalTop">
+        <strong>💞 YAYYYYY!!!</strong>
+        <button class="close" id="closeBtn">Close</button>
+      </div>
+      <div class="modalBody">
+        <div class="bigHeart"></div>
+        <div class="burst" id="burst"></div>
+        <div class="msg" id="msg"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // -----------------------------
+    // Background floating hearts
+    // -----------------------------
+    const bg = document.getElementById("bgHearts");
+    const makeBgHeart = () => {
+      const h = document.createElement("div");
+      h.className = "bg-heart";
+      const left = Math.random() * 100;
+      const dur = 6 + Math.random() * 8;
+      const delay = Math.random() * 2;
+      const size = 10 + Math.random() * 18;
+      h.style.left = left + "vw";
+      h.style.animationDuration = dur + "s";
+      h.style.animationDelay = delay + "s";
+      h.style.width = size + "px";
+      h.style.height = size + "px";
+      // match pseudo-elements sizing by scaling container
+      h.style.transform = "rotate(45deg)";
+      bg.appendChild(h);
+      setTimeout(() => h.remove(), (dur + delay) * 1000);
+    };
+    // spawn continuously
+    setInterval(makeBgHeart, 180);
+    // prefill a few
+    for(let i=0;i<18;i++) makeBgHeart();
+
+    // -----------------------------
+    // "No" button runs away
+    // -----------------------------
+    const buttons = document.getElementById("buttons");
+    const noBtn = document.getElementById("noBtn");
+
+    function moveNoButton() {
+      const rect = buttons.getBoundingClientRect();
+      const pad = 8;
+
+      // compute safe area inside container
+      const maxX = rect.width - noBtn.offsetWidth - pad;
+      const maxY = rect.height - noBtn.offsetHeight - pad;
+
+      const x = Math.max(pad, Math.random() * maxX);
+      const y = Math.max(pad, Math.random() * maxY);
+
+      noBtn.style.left = x + "px";
+      noBtn.style.top  = y + "px";
+    }
+
+    // Make container tall enough so No can move around inside
+    function ensureButtonAreaHeight() {
+      const minH = 120;
+      if (buttons.offsetHeight < minH) buttons.style.minHeight = minH + "px";
+    }
+    ensureButtonAreaHeight();
+    moveNoButton();
+
+    // "unclickable" but still reacts when user tries (we detect pointer near it)
+    // Since pointer-events:none, we listen on the container and dodge when cursor approaches.
+    buttons.addEventListener("pointermove", (e) => {
+      const b = buttons.getBoundingClientRect();
+      const mx = e.clientX - b.left;
+      const my = e.clientY - b.top;
+
+      const nx = parseFloat(noBtn.style.left || "0") + noBtn.offsetWidth/2;
+      const ny = parseFloat(noBtn.style.top  || "0") + noBtn.offsetHeight/2;
+
+      const dist = Math.hypot(mx - nx, my - ny);
+      if (dist < 90) moveNoButton();
+    });
+
+    // Also dodge on click anywhere near where it is
+    buttons.addEventListener("click", () => {
+      moveNoButton();
+    });
+
+    // -----------------------------
+    // YES click -> modal + message + hearts burst + song
+    // -----------------------------
+    const yesBtn = document.getElementById("yesBtn");
+    const overlay = document.getElementById("overlay");
+    const closeBtn = document.getElementById("closeBtn");
+    const msg = document.getElementById("msg");
+    const burst = document.getElementById("burst");
+
+    const loveMessage =
+`Awwwr!! yayyy!! m ti kner haa t pu dre ouii 😂❤️
+apres si otan bon ek zoli tifi kt t pu ggnr rightt😂❤️❤️
+thankkyouu for being my valentinesss!!
+I lovee youu my bbybooo❤️❤️`;
+
+    function makeBurstHearts() {
+      burst.innerHTML = "";
+      const count = 24;
+      const w = burst.clientWidth;
+      const h = burst.clientHeight;
+
+      for (let i=0; i<count; i++) {
+        const el = document.createElement("div");
+        el.className = "burstHeart";
+
+        // start near center-ish
+        const sx = (w/2) + (Math.random()*60 - 30);
+        const sy = (h/2) + (Math.random()*30 - 15);
+
+        // end positions
+        const tx = sx + (Math.random()*500 - 250);
+        const ty = sy + (Math.random()*360 - 220);
+
+        el.style.left = sx + "px";
+        el.style.top  = sy + "px";
+        el.style.setProperty("--sx", "0px");
+        el.style.setProperty("--sy", "0px");
+        el.style.setProperty("--tx", (tx - sx) + "px");
+        el.style.setProperty("--ty", (ty - sy) + "px");
+        el.style.animationDelay = (Math.random() * 120) + "ms";
+        burst.appendChild(el);
+      }
+    }
+
+    // Cute little “perfect song” vibe: simple in-browser melody (WebAudio)
+    let audioCtx;
+    function playMelody() {
+      // Browsers require a user gesture -> this runs after clicking YES
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+
+      const now = audioCtx.currentTime;
+      const master = audioCtx.createGain();
+      master.gain.value = 0.18;
+      master.connect(audioCtx.destination);
+
+      // Soft reverb-ish delay
+      const delay = audioCtx.createDelay(2.0);
+      delay.delayTime.value = 0.18;
+
+      const feedback = audioCtx.createGain();
+      feedback.gain.value = 0.25;
+
+      delay.connect(feedback);
+      feedback.connect(delay);
+
+      const wet = audioCtx.createGain();
+      wet.gain.value = 0.22;
+
+      delay.connect(wet);
+      wet.connect(master);
+
+      function note(freq, start, dur) {
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, start);
+
+        // plucky envelope
+        g.gain.setValueAtTime(0.0001, start);
+        g.gain.exponentialRampToValueAtTime(0.9, start + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+
+        osc.connect(g);
+        g.connect(master);
+        g.connect(delay);
+
+        osc.start(start);
+        osc.stop(start + dur + 0.03);
+      }
+
+      // Simple romantic progression (in Hz)
+      const A4=440;
+      const scale = (n)=> A4 * Math.pow(2, n/12);
+      // A major-ish tones: A, C#, E, F#, E, C#, B, A (sweet)
+      const melody = [
+        scale(0),   // A4
+        scale(4),   // C#5
+        scale(7),   // E5
+        scale(9),   // F#5
+        scale(7),   // E5
+        scale(4),   // C#5
+        scale(2),   // B4
+        scale(0),   // A4
+      ];
+
+      let t = now + 0.02;
+      const dur = 0.22;
+      melody.forEach((f, i) => {
+        note(f, t, dur + (i%3===0 ? 0.06 : 0));
+        t += 0.24;
+      });
+
+      // Add a little “sparkle” harmony
+      setTimeout(()=>{
+        let tt = audioCtx.currentTime + 0.01;
+        const harmony = [scale(12), scale(11), scale(9), scale(7)];
+        harmony.forEach((f) => {
+          note(f, tt, 0.18);
+          tt += 0.14;
+        });
+      }, 450);
+    }
+
+    yesBtn.addEventListener("click", () => {
+      msg.textContent = loveMessage;
+      overlay.classList.add("show");
+      makeBurstHearts();
+      playMelody();
+    });
+
+    closeBtn.addEventListener("click", () => {
+      overlay.classList.remove("show");
+    });
+
+    // Close on background click
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) overlay.classList.remove("show");
+    });
+
+    // Keep "No" always inside button area on resize
+    window.addEventListener("resize", () => {
+      ensureButtonAreaHeight();
+      moveNoButton();
+    });
+  </script>
+</body>
+</html>
